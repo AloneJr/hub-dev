@@ -1,0 +1,286 @@
+:root {
+    --bg: #0f172a;
+    --card-bg: #1e293b;
+    --card-hover: #334155;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #38bdf8; /* Azul Nexus */    
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.project {
+    position: relative;
+    isolation: isolate; /* Cria novo contexto de empilhamento */
+}
+
+.card-bg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; /* Garante que preencha sem distorcer */
+    z-index: -2; /* Fica no fundo */
+    transition: transform 0.5s ease;
+}
+
+/* --- O BENTO GRID --- */
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 colunas padrão */
+    grid-auto-rows: minmax(180px, auto); /* Altura mínima das linhas */
+    gap: 1.5rem;
+    max-width: 1200px;
+    width: 100%;
+}
+
+.overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 10%, rgba(15, 23, 42, 0.4) 100%);
+    z-index: -1;
+}
+
+/* --- ESTILO GERAL DOS CARDS --- */
+.card {
+    background-color: var(--card-bg);
+    border-radius: 24px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card:hover {    
+    background-color: var(--card-hover);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    border-color: rgba(255,255,255,0.1);
+    z-index: 10;
+}
+
+.icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.pixel-box {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(74, 222, 128, 0.3); /* Borda verde suave */
+    image-rendering: pixelated; /* Mantém o pixel art nítido */
+}
+.pixel-box img {
+    width: 32px; /* Tamanho da peça dentro da caixa */
+    height: 32px;
+}
+
+/* Classes Utilitárias de Grid */
+.col-span-2 { grid-column: span 2; }
+.row-span-2 { grid-row: span 2; }
+
+/* --- CARD PERFIL --- */
+.profile {
+    justify-content: center;
+    gap: 1.5rem;
+}
+.profile-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+}
+.badge {
+    background: rgba(56, 189, 248, 0.1);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+.profile h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.profile p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
+
+.tech-stack {
+    display: flex;
+    gap: 1rem;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    margin-top: 1rem;
+}
+
+/* --- CARD NEXUS MAP --- */
+.map-project {
+    background: linear-gradient(to bottom right, #0f172a, #1e293b);
+    position: relative;
+}
+.map-project .icon-box {
+    background: var(--accent);
+    color: #000;
+}
+/* Simulação de estrelas no fundo do card */
+.map-project::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: radial-gradient(white 1px, transparent 1px);
+    background-size: 30px 30px;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+/* --- CARD XADREZ --- */
+.chess-project .icon-box {
+    background: var(--accent-chess);
+    color: #000;
+}
+/* Padrão Xadrez sutil no fundo */
+.chess-decoration {
+    position: absolute;
+    right: -20px;
+    bottom: -20px;
+    width: 100px;
+    height: 100px;
+    background-image: repeating-linear-gradient(45deg, #4ade80 25%, transparent 25%, transparent 75%, #4ade80 75%, #4ade80), repeating-linear-gradient(45deg, #4ade80 25%, #1e293b 25%, #1e293b 75%, #4ade80 75%, #4ade80);
+    background-position: 0 0, 10px 10px;
+    background-size: 20px 20px;
+    opacity: 0.1;
+    transform: rotate(15deg);
+}
+
+/* --- CARD TRADUTOR --- */
+.translator-project .icon-box {
+    background: #f472b6; /* Rosa */
+    color: white;
+}
+
+/* --- ICON BOX GENÉRICO --- */
+.icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+.content h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.content p { font-size: 0.85rem; color: var(--text-muted); }
+
+/* --- SOCIAIS --- */
+.social {
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+.social i { font-size: 1.5rem; }
+.github:hover { background: #333; color: white; border-color: #555; }
+.linkedin:hover { background: #0077b5; color: white; border-color: #0077b5; }
+
+/* === CONTATO === */
+.contact {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+}
+
+.contact-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.email-display {
+    font-family: monospace; /* Fonte estilo código para email */
+    background: rgba(0,0,0,0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: var(--accent);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.btn-gmail {
+    font-size: 0.8rem;
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    opacity: 0.7;
+    transition: 0.3s;
+}
+.btn-gmail:hover {
+    opacity: 1;
+    color: #ea4335; /* Cor vermelha do Gmail */
+}
+
+/* --- RESPONSIVIDADE (MOBILE) --- */
+@media (max-width: 768px) {
+    .bento-grid {
+        grid-template-columns: 1fr; /* Força 1 coluna única */
+        grid-auto-rows: auto; /* Altura automática */
+    }
+    
+    /* Faz os itens que ocupavam 2 espaços ocuparem apenas 1 (largura total do celular) */
+    .col-span-2, .row-span-2 {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+    
+    /* Garante que o mapa e o xadrez tenham altura suficiente no celular */
+    .map-project, .chess-project {
+        min-height: 250px;
+    }
+    
+    /* Ajuste de padding para telas pequenas */
+    body {
+        padding: 1rem;
+    }
+}

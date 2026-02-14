@@ -1,0 +1,48 @@
+<!DOCTYPE html> 
+
+<html lang="en">
+
+<head> <!-- Configs do site-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+    <link rel="stylesheet" href="styles.css">        
+    <title>TRADUTOR - JERYEL</title> <!--CASCADING STYLE SHEET-->
+</head>
+
+<body> <!--esqueleto do site-->
+    
+    <div class="caixa-maior">
+
+        <textarea class="input-texto"></textarea>
+
+        <div class="controle">
+            <select class="idioma">
+                <option value="en">Inglês</option>
+                <option value="de">Alemão</option>
+                <option value="ja">Japonês</option>
+                <option value="fr">Francês</option>
+                <option value="es">Espanhol</option>
+            </select>
+
+            <button class ="b-traduzir" onclick="traduzir()">
+                <img src="imgs/traduzir.svg">
+            </button>
+            <button class="b-microfone" onclick="microfone()">
+                <img src="imgs/microfone.svg">
+            </button>
+        </div>           
+
+        <div class="resultado">
+            <h3 class="titulo-traducao">Tradução</h3>
+            <p class="traducao">A tradução aparecerá aqui:</p>
+        </div>
+
+        <button class="b-tema" onclick="toggleTema()">🌙</button>   
+
+    </div>   
+    
+</body>
+
+<script src="scripts.js"></script>
+
+</html>

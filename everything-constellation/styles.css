@@ -1,0 +1,182 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden; /* Remove a barra de rolagem nativa */
+    background-color: #000;
+    color: white;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- Intro Animada --- */
+.intro-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000; /* Fundo preto do espaço */
+    z-index: 1000; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 2s ease-in-out; /* Transição suave quando a tela toda sumir */
+}
+
+.intro-texto {
+    position: absolute;
+    font-size: 2.5rem; /* Texto bem grande e legível */
+    color: #fff;
+    text-align: center;
+    width: 100%; /* Garante centralização */
+    pointer-events: none;
+    display: none;
+    justify-content: center;
+    flex-wrap: wrap; /* Caso a frase seja longa, quebra linha */
+}
+
+.texto-final {
+    position: fixed;
+    top: 35%; /* MUDOU: De 40% para 35% (Mais alto) */
+    left: 50%;
+    transform: translate(-50%, -50%); /* Garante alinhamento horizontal perfeito */  
+    font-size: 4rem; 
+    font-weight: 800;
+    color: #ffecd2;
+    text-shadow: 0 0 20px #ff9a9e, 0 0 40px #ff9a9e;
+    z-index: 500;
+    pointer-events: none;
+    display: none; 
+    justify-content: center;
+}
+
+.intro-texto span, .texto-final span {
+    opacity: 0;
+    transition: opacity 1s ease; /* Suavidade do fade */
+    display: inline-block; /* Permite transformações futuras */
+    min-width: 15px; /* Garante que espaços vazios tenham tamanho */
+}
+
+/* Quando adicionarmos essa classe via JS, o texto aparece e cresce levemente */
+.intro-texto.visivel {
+    opacity: 1;
+    transform: scale(1);
+}   
+
+.viewport {
+    width: 100vw;
+    height: 100vh;
+    cursor: grab; /* Mãozinha para indicar que pode arrastar (Fica ou não??)*/
+    overflow: hidden;
+    position: relative;
+}
+
+.viewport:active {
+    cursor: grabbing; /* Mãozinha fechada ao clicar */
+}
+
+.universe {
+    position: absolute;
+    width: 3000px;
+    height: 3000px;
+    background-color: #000;
+    
+    /* TRUQUE NOVO: Já deixamos a origem do zoom no centro do mapa (1500, 1500) pelo CSS */
+    transform-origin: 1500px 1500px; 
+    transition: transform 0.1s ease-out;
+    
+    /* Garante que comece no topo esquerdo para o JS calcular certo */
+    top: 0;
+    left: 0;
+}
+
+/* Estilo Único para o Big Bang */
+.star.bigbang {
+    width: 60px; /* Muito maior que as outras */
+    height: 60px;
+    background: radial-gradient(circle, #ffecd2 0%, #fcb69f 100%); /* Cor de "explosão" */
+    box-shadow: 0 0 50px #ff9a9e; /* Brilho intenso */
+    z-index: 20; /* Fica acima de tudo */
+    animation: pulsar 3s infinite ease-in-out;
+}
+
+/* Animação de pulsar */
+@keyframes pulsar {
+    0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 30px #ff9a9e; }
+    50% { transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 60px #ffecd2; }
+    100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 30px #ff9a9e; }
+}
+
+/* As Estrelas (Nós) */
+.star {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%); /* Centraliza no ponto X,Y */
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 10; /* Fica acima das linhas */
+}
+
+.star:hover {
+    transform: translate(-50%, -50%) scale(1.5);
+    box-shadow: 0 0 15px #38bdf8;
+}
+
+/* Cores por tipo */
+.star.fisica { background-color: #38bdf8; box-shadow: 0 0 10px #38bdf8; }
+.star.biologia { background-color: #4ade80; box-shadow: 0 0 10px #4ade80; }
+
+/* Linhas SVG */
+svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Deixa clicar através das linhas */
+    z-index: 1; /* Fica abaixo das estrelas */
+}
+
+line {
+    stroke: rgba(255, 255, 255, 0.5);
+    stroke-width: 2px;
+    transition: stroke 0.3s;
+}
+
+/* Modal Simples */
+.modal {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    background: rgba(0,0,0,0.9);
+    border: 1px solid #fff;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 100;
+}
+.hidden { display: none; }
+
+/* Novo estilo para o "O Big Bang" */
+.texto-final {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem; /* Bem grande */
+    font-weight: 800;
+    color: #ffecd2; /* Mesma cor do Big Bang */
+    text-shadow: 0 0 20px #ff9a9e, 0 0 40px #ff9a9e; /* Brilho neon */
+    z-index: 500;
+    pointer-events: none; /* Para não atrapalhar o clique no mapa */
+    display: flex;
+    transition: opacity 1s ease-in-out;
+}
