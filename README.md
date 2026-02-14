@@ -43,7 +43,7 @@ Aplicação de tradução em tempo real.
 
 # Clone este repositório
 ```bash
-git clone [https://github.com/alonejr/hub-dev.git](https://github.com/alonejr/hub-dev.git)
+git clone https://github.com/alonejr/hub-dev.git
 ```
 
 # Entre na pasta
