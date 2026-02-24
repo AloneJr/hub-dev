@@ -472,7 +472,7 @@ html, body, *, .btn, .piece, .square {
     cursor: none !important;
 }
 
-/* Garante que o seu cursor personalizado fique sempre no topo */
+/* Garante que o meu cursor personalizado fique sempre no topo */
 #cursor-user {
     pointer-events: none; /* O clique "passa" por ele e acerta o botão/peça */
     z-index: 999999; /* Valor absurdo para garantir que nada cubra ele */
