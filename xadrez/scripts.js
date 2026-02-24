@@ -1,390 +1,378 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const boardEl = document.querySelector("#board");
-  if (!boardEl) return;
+const boardElement = document.getElementById('board');
+const turnoElement = document.getElementById('turno');
+const cursor = document.getElementById('cursor-user');
 
-  // ----------------------------
-  // Estado visual do tabuleiro
-  // ----------------------------
-  const INITIAL_BOARD = [
-    ["r","n","b","q","k","b","n","r"],
-    ["p","p","p","p","p","p","p","p"],
-    ["","","","","","","",""],
-    ["","","","","","","",""],
-    ["","","","","","","",""],
-    ["","","","","","","",""],
-    ["P","P","P","P","P","P","P","P"],
-    ["R","N","B","Q","K","B","N","R"],
-  ];
+// Estado do Jogo
+let turno = 'white'; 
+let tabuleiro = []; 
 
-  let boardState = INITIAL_BOARD.map(row => row.slice());
+// Controle de Arraste (Xadrez)
+let pecaArrastada = null;
+let origemArraste = null; 
+let startX, startY;
 
-  // ----------------------------
-  // Helpers
-  // ----------------------------
-  function isWhite(piece) {
-    return piece && piece === piece.toUpperCase();
-  }
+// ==========================================
+// 1. CONFIGURAÇÃO (RESET CORRIGIDO)
+// ==========================================
 
-  function pieceToClass(piece) {
-    const map = { p: "pawn", r: "rook", n: "knight", b: "bishop", q: "queen", k: "king" };
-    const color = isWhite(piece) ? "w" : "b";
-    const type = map[piece.toLowerCase()];
-    return `${color}-${type}`;
-  }
+// CONSTANTE IMUTÁVEL: O Layout padrão do início do jogo
+const LAYOUT_PADRAO = [
+    ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
+    ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
+    ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
+];
 
-  // Retorna o centro (x,y) de uma célula
-  function cellCenter(cellEl) {
-    const rect = cellEl.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, size: rect.width };
-  }
+// Variável que muda durante o jogo (Cópia profunda do padrão)
+let configuracaoAtual = JSON.parse(JSON.stringify(LAYOUT_PADRAO));
 
-  // ----------------------------
-  // Render
-  // ----------------------------
-  function renderBoard() {
-    boardEl.innerHTML = "";
-
-    for (let r = 0; r < 8; r++) {
-      for (let c = 0; c < 8; c++) {
-        const cell = document.createElement("div");
-        cell.className = "cell " + ((r + c) % 2 === 0 ? "light" : "dark");
-        cell.dataset.r = String(r);
-        cell.dataset.c = String(c);
-
-        const piece = boardState[r][c];
-        if (piece) {
-          const pieceEl = document.createElement("div");
-          pieceEl.className = "piece " + pieceToClass(piece) + (isWhite(piece) ? "" : " black");
-
-          // random suave (balanço)
-          pieceEl.style.setProperty("--bobDur", (1.6 + Math.random() * 0.9).toFixed(2) + "s");
-          pieceEl.style.setProperty("--bobDelay", (-Math.random() * 1.2).toFixed(2) + "s");
-          pieceEl.style.setProperty("--bobAmp", (1 + Math.random() * 2).toFixed(2) + "px");
-
-          cell.appendChild(pieceEl);
-        }
-
-        boardEl.appendChild(cell);
-      }
+// --- CURSORES ---
+document.addEventListener('mousemove', (e) => {
+    if (cursor) {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
     }
-  }
-
-  // ----------------------------
-  // Cursor falso (user)
-  // ----------------------------
-  let cursorUser = document.querySelector("#cursor-user");
-  if (!cursorUser) {
-    cursorUser = document.createElement("div");
-    cursorUser.id = "cursor-user";
-    cursorUser.className = "cursor idle";
-    document.body.appendChild(cursorUser);
-  }
-
-  function setCursor(state) {
-    cursorUser.classList.remove("idle", "grab", "hold", "drop");
-    cursorUser.classList.add(state);
-  }
-
-  // ----------------------------
-  // “Pick & Drop” visual
-  // ----------------------------
-  let holding = false;
-  let heldPiece = "";
-  let fromPos = null;
-  let floating = null;
-  let lastMouse = { x: 0, y: 0 };
-
-  function getCellFromEventTarget(target) {
-    return target?.closest?.(".cell") || null;
-  }
-
-  function hasPieceAt(r, c) {
-    return !!boardState[r][c];
-  }
-
-  function cellHasPiece(cellEl) {
-    const r = Number(cellEl.dataset.r);
-    const c = Number(cellEl.dataset.c);
-    return hasPieceAt(r, c);
-  }
-
-  function pieceClassToFile(pieceChar) {
-    const cls = pieceToClass(pieceChar); // w-queen
-    return `${cls.replace("-", "_")}.png`; // w_queen.png
-  }
-
-  function pickFromCell(cellEl) {
-    const r = Number(cellEl.dataset.r);
-    const c = Number(cellEl.dataset.c);
-
-    const piece = boardState[r][c];
-    if (!piece) return;
-
-    holding = true;
-    heldPiece = piece;
-    fromPos = { r, c };
-
-    // esconde peça original (só visual)
-    const pieceDom = cellEl.querySelector(".piece");
-    if (pieceDom) pieceDom.classList.add("hidden");
-
-    // cria peça flutuante no centro da célula
-    const { x, y, size } = cellCenter(cellEl);
-    floating = document.createElement("div");
-    floating.className = "floating-piece";
-
-    const px = Math.floor(size * 0.86);
-    floating.style.width = px + "px";
-    floating.style.height = px + "px";
-    floating.style.backgroundImage = `url("assets/pieces/${pieceClassToFile(piece)}")`;
-    floating.style.left = x + "px";
-    floating.style.top = y + "px";
-    document.body.appendChild(floating);
-
-    setCursor("hold");
-  }
-
-  function cancelHoldRestore() {
-    if (!fromPos) return;
-
-    const fromCell = boardEl.querySelector(
-      `.cell[data-r="${fromPos.r}"][data-c="${fromPos.c}"]`
-    );
-    if (fromCell) {
-      const pieceDom = fromCell.querySelector(".piece");
-      if (pieceDom) pieceDom.classList.remove("hidden");
+    // Move peça de xadrez
+    if (pecaArrastada) {
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        pecaArrastada.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
     }
-
-    if (floating) {
-      floating.remove();
-      floating = null;
-    }
-
-    holding = false;
-    heldPiece = "";
-    fromPos = null;
-    setCursor("idle");
-  }
-
-  function dropToCell(cellEl) {
-    const r = Number(cellEl.dataset.r);
-    const c = Number(cellEl.dataset.c);
-
-    // só solta em casa vazia
-    if (boardState[r][c]) return;
-
-    setCursor("drop");
-
-    // alvo da animação (centro da casa destino)
-    const { x: tx, y: ty } = cellCenter(cellEl);
-
-    // anima até o alvo
-    floating.classList.add("dropping");
-    floating.style.left = tx + "px";
-    floating.style.top = ty + "px";
-
-    const finish = () => {
-      floating?.removeEventListener("transitionend", finish);
-
-      boardState[fromPos.r][fromPos.c] = "";
-      boardState[r][c] = heldPiece;
-
-      floating?.remove();
-      floating = null;
-
-      holding = false;
-      heldPiece = "";
-      fromPos = null;
-
-      renderBoard();
-      setCursor("idle");
-    };
-
-    floating.addEventListener("transitionend", finish);
-  }
-
-  // ----------------------------
-  // Mouse: mover cursor e hover states
-  // ----------------------------
-  window.addEventListener("mousemove", (e) => {
-    lastMouse.x = e.clientX;
-    lastMouse.y = e.clientY;
-
-    cursorUser.style.left = e.clientX + "px";
-    cursorUser.style.top = e.clientY + "px";
-
-    // se segurando, peça flutuante segue o mouse
-    if (holding && floating && !floating.classList.contains("dropping")) {
-      floating.style.left = e.clientX + "px";
-      floating.style.top = e.clientY + "px";
-    }
-
-    // cursor: grab quando passa por peça
-    if (!holding) {
-      const el = document.elementFromPoint(e.clientX, e.clientY);
-      const cell = el?.closest?.(".cell");
-      if (cell && cellHasPiece(cell)) setCursor("grab");
-      else setCursor("idle");
-    }
-  });
-
-  // Clique: pegar ou soltar
-  boardEl.addEventListener("click", (e) => {
-    const cell = getCellFromEventTarget(e.target);
-    if (!cell) return;
-
-    const r = Number(cell.dataset.r);
-    const c = Number(cell.dataset.c);
-
-    if (!holding) {
-      if (boardState[r][c]) pickFromCell(cell);
-      return;
-    }
-
-    if (!boardState[r][c]) dropToCell(cell);
-  });
-
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && holding) cancelHoldRestore();
-  });
-
-  // ==================================================
-  // UI: Reset / Tema / Easter Egg Terraria
-  // ==================================================
-
-  const btnReset = document.querySelector("#btn-reset");
-  const btnTema = document.querySelector("#btn-tema");
-  const temaIcone = document.querySelector("#tema-icone");
-
-  // flag: se arrastou, não troca tema no click
-  let temaDraggedRecently = false;
-
-  // Easter egg: só 1 vez até reset/reload
-  let eggSpawned = false;
-
-  function isSunShowing() {
-    // checa se o ícone atual é o sol
-    return !!temaIcone && temaIcone.src.includes("sun.png");
-  }
-
-  function spawnTerrariaEggOnce() {
-    if (eggSpawned) return;
-    eggSpawned = true;
-
-    const tree = document.createElement("img");
-    tree.src = "assets/bg/e_tree.png";
-    tree.alt = "Terraria easter egg";
-    tree.className = "e-tree";
-
-    const tip = document.createElement("div");
-    tip.className = "e-tree-tooltip";
-    tip.textContent = "Entendeu a referência?";
-
-    document.body.appendChild(tree);
-    document.body.appendChild(tip);
-
-    const audio = new Audio("assets/sfx/toasty_egg.mp3");
-    audio.volume = 0.8;
-    audio.play().catch(() => {});
-  }
-
-  function removeTerrariaEgg() {
-    document.querySelectorAll(".e-tree, .e-tree-tooltip").forEach(el => el.remove());
-    eggSpawned = false;
-  }
-
-  // Reset: volta board e remove egg
-  btnReset?.addEventListener("click", () => {
-    if (holding) cancelHoldRestore();
-    removeTerrariaEgg();
-
-    boardState = INITIAL_BOARD.map(row => row.slice());
-    renderBoard();
-    setCursor("idle");
-  });
-
-  // Clique no tema: só troca se NÃO houve drag
-  btnTema?.addEventListener("click", () => {
-    if (temaDraggedRecently) {
-      temaDraggedRecently = false;
-      return;
-    }
-
-    document.body.classList.toggle("dark");
-    const isDark = document.body.classList.contains("dark");
-
-    if (temaIcone) {
-      temaIcone.src = isDark ? "assets/buttons/sun.png" : "assets/buttons/moon.png";
-      temaIcone.alt = isDark ? "Tema claro" : "Tema escuro";
-    }
-  });
-
-  // Drag do botão tema: funciona com sol OU lua
-  let draggingTema = false;
-  let dragStarted = false;
-  let startX = 0, startY = 0;
-
-  function beginDragTema(e) {
-    draggingTema = true;
-    dragStarted = false;
-    temaDraggedRecently = false;
-
-    btnTema.classList.remove("returning");
-    btnTema.classList.add("dragging");
-
-    const p = e.touches ? e.touches[0] : e;
-    startX = p.clientX;
-    startY = p.clientY;
-  }
-
-  function moveDragTema(e) {
-    if (!draggingTema) return;
-
-    const p = e.touches ? e.touches[0] : e;
-    const dx = p.clientX - startX;
-    const dy = p.clientY - startY;
-
-    // Só vira "drag de verdade" depois do threshold
-    if (!dragStarted && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
-      dragStarted = true;
-      temaDraggedRecently = true;
-
-      // ✅ Easter egg acontece APENAS quando estiver com o SOL
-      if (isSunShowing()) spawnTerrariaEggOnce();
-    }
-
-    btnTema.style.transform = `translate(${dx}px, ${dy}px)`;
-
-    if (e.cancelable) e.preventDefault();
-  }
-
-  function endDragTema() {
-    if (!draggingTema) return;
-    draggingTema = false;
-
-    btnTema.classList.remove("dragging");
-    btnTema.classList.add("returning");
-    btnTema.style.transform = `translate(0px, 0px)`;
-
-    setTimeout(() => btnTema.classList.remove("returning"), 240);
-
-    // evita click fantasma
-    setTimeout(() => { temaDraggedRecently = false; }, 0);
-  }
-
-  if (btnTema) {
-    btnTema.addEventListener("mousedown", beginDragTema);
-    window.addEventListener("mousemove", moveDragTema);
-    window.addEventListener("mouseup", endDragTema);
-
-    btnTema.addEventListener("touchstart", beginDragTema, { passive: false });
-    window.addEventListener("touchmove", moveDragTema, { passive: false });
-    window.addEventListener("touchend", endDragTema);
-  }
-
-  // ----------------------------
-  // Start
-  // ----------------------------
-  renderBoard();
-  setCursor("idle");
 });
+
+function setCursor(estado) {
+    if (cursor) {
+        cursor.className = `cursor ${estado}`;
+        if (estado === 'drop') {
+            setTimeout(() => { if (!pecaArrastada) cursor.className = 'cursor idle'; }, 200);
+        }
+    }
+}
+
+// --- CRIAÇÃO DO TABULEIRO ---
+function criarTabuleiro() {
+    boardElement.innerHTML = ''; 
+    tabuleiro = []; 
+
+    for (let i = 0; i < 8; i++) {
+        const linhaLogica = [];
+        for (let j = 0; j < 8; j++) {
+            const square = document.createElement('div');
+            square.classList.add('square');
+            square.classList.add((i + j) % 2 === 0 ? 'white' : 'black');
+            square.dataset.row = i;
+            square.dataset.col = j;
+
+            const codigoPeca = configuracaoAtual[i][j];
+            let objetoPeca = null;
+
+            if (codigoPeca) {
+                const cor = codigoPeca[0] === 'w' ? 'white' : 'black';
+                const tipo = getNomePeca(codigoPeca[1]);
+                objetoPeca = { cor, tipo, codigo: codigoPeca };
+
+                const img = document.createElement('img');
+                img.src = `assets/pieces/${codigoPeca[0]}_${tipo}.png`;
+                img.classList.add('piece');
+                img.draggable = false; 
+
+                adicionarEventosPeca(img, i, j, objetoPeca);
+                square.appendChild(img);
+            }
+            linhaLogica.push(objetoPeca);
+            boardElement.appendChild(square);
+        }
+        tabuleiro.push(linhaLogica);
+    }
+}
+
+function getNomePeca(char) {
+    const mapa = { 'P': 'pawn', 'R': 'rook', 'N': 'knight', 'B': 'bishop', 'Q': 'queen', 'K': 'king' };
+    return mapa[char];
+}
+
+// ==========================================
+// 2. LÓGICA DE JOGO (MOVER E VALIDAR)
+// ==========================================
+
+function adicionarEventosPeca(img, linha, coluna, pecaObj) {
+    img.addEventListener('mouseenter', () => {
+        if (!pecaArrastada && pecaObj.cor === turno) {
+            setCursor('grab');
+            mostrarDicas(pecaObj, linha, coluna);
+        }
+    });
+
+    img.addEventListener('mouseleave', () => {
+        if (!pecaArrastada) {
+            setCursor('idle');
+            limparDicas();
+        }
+    });
+
+    img.addEventListener('mousedown', (e) => iniciarArraste(e, img, linha, coluna));
+    img.addEventListener('touchstart', (e) => iniciarArraste(e.touches[0], img, linha, coluna), {passive: false});
+}
+
+function iniciarArraste(e, img, linha, coluna) {
+    const pecaObj = tabuleiro[linha][coluna];
+    if (!pecaObj || pecaObj.cor !== turno) return;
+
+    e.preventDefault();
+    pecaArrastada = img;
+    origemArraste = { linha, coluna };
+    startX = e.clientX;
+    startY = e.clientY;
+    
+    setCursor('hold');
+    img.style.position = 'relative'; 
+    img.style.zIndex = 9999; 
+    img.style.pointerEvents = 'none'; 
+    mostrarDicas(pecaObj, linha, coluna);
+
+    document.addEventListener('mouseup', soltarPeca);
+    document.addEventListener('touchend', soltarPeca);
+}
+
+function soltarPeca(e) {
+    if (!pecaArrastada) return;
+
+    document.removeEventListener('mouseup', soltarPeca);
+    document.removeEventListener('touchend', soltarPeca);
+
+    const touch = e.changedTouches ? e.changedTouches[0] : e;
+    const elementoAlvo = document.elementFromPoint(touch.clientX, touch.clientY);
+    const casaAlvo = elementoAlvo ? elementoAlvo.closest('.square') : null;
+
+    limparDicas();
+    let movimentoValido = false;
+
+    if (casaAlvo) {
+        const linhaDestino = parseInt(casaAlvo.dataset.row);
+        const colunaDestino = parseInt(casaAlvo.dataset.col);
+        const pecaObj = tabuleiro[origemArraste.linha][origemArraste.coluna];
+
+        if (validarMovimento(pecaObj, origemArraste, {linha: linhaDestino, coluna: colunaDestino}, tabuleiro)) {
+            movimentoValido = true;
+            executarMovimento(casaAlvo, linhaDestino, colunaDestino);
+            setCursor('drop'); 
+        } else {
+            mostrarErro(casaAlvo);
+            setCursor('idle');
+        }
+    } else {
+        setCursor('idle');
+    }
+
+    if (!movimentoValido) animarRetorno();
+}
+
+function animarRetorno() {
+    pecaArrastada.classList.add('snap-back');
+    pecaArrastada.style.transform = 'translate(0px, 0px)';
+    setTimeout(() => {
+        if (pecaArrastada) {
+            pecaArrastada.classList.remove('snap-back');
+            pecaArrastada.style.zIndex = '';
+            pecaArrastada.style.pointerEvents = 'auto';
+            pecaArrastada = null;
+        }
+    }, 300);
+}
+
+function executarMovimento(casaDestino, r, c) {
+    const pecaMovida = tabuleiro[origemArraste.linha][origemArraste.coluna];
+    
+    // Atualiza a Matriz de Configuração para persistir
+    configuracaoAtual[origemArraste.linha][origemArraste.coluna] = null;
+    configuracaoAtual[r][c] = pecaMovida.codigo; 
+    
+    // Troca Turno
+    turno = turno === 'white' ? 'black' : 'white';
+    turnoElement.innerText = turno === 'white' ? 'Brancas' : 'Pretas';
+    
+    pecaArrastada = null;
+    
+    // Recarrega o board
+    criarTabuleiro(); 
+}
+
+// --- FUNÇÕES AUXILIARES DE REGRAS (Resumidas) ---
+function validarMovimento(peca, origem, destino, matriz) {
+    const diffL = destino.linha - origem.linha;
+    const diffC = destino.coluna - origem.coluna;
+    const distL = Math.abs(diffL);
+    const distC = Math.abs(diffC);
+    const alvo = matriz[destino.linha][destino.coluna];
+
+    if (alvo && alvo.cor === peca.cor) return false;
+
+    switch (peca.tipo) {
+        case 'rook': return (distL === 0 || distC === 0) && isCaminhoLivre(origem, destino, matriz);
+        case 'bishop': return (distL === distC) && isCaminhoLivre(origem, destino, matriz);
+        case 'queen': return ((distL === 0 || distC === 0) || (distL === distC)) && isCaminhoLivre(origem, destino, matriz);
+        case 'knight': return (distL === 2 && distC === 1) || (distL === 1 && distC === 2);
+        case 'king': return distL <= 1 && distC <= 1;
+        case 'pawn':
+            const dir = (peca.cor === 'white') ? -1 : 1;
+            const start = (peca.cor === 'white') ? 6 : 1;
+            if (diffC === 0 && diffL === dir) return alvo === null;
+            if (diffC === 0 && diffL === (2*dir) && origem.linha === start) return alvo === null && isCaminhoLivre(origem, destino, matriz);
+            if (distC === 1 && diffL === dir) return alvo !== null;
+            return false;
+    }
+    return false;
+}
+
+function isCaminhoLivre(origem, destino, matriz) {
+    const passL = Math.sign(destino.linha - origem.linha);
+    const passC = Math.sign(destino.coluna - origem.coluna);
+    let l = origem.linha + passL, c = origem.coluna + passC;
+    while (l !== destino.linha || c !== destino.coluna) {
+        if (matriz[l][c] !== null) return false;
+        l += passL; c += passC;
+    }
+    return true;
+}
+
+function mostrarDicas(peca, linha, coluna) {
+    limparDicas();
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (validarMovimento(peca, {linha, coluna}, {linha: r, coluna: c}, tabuleiro)) {
+                const casa = document.querySelector(`.square[data-row="${r}"][data-col="${c}"]`);
+                if (casa) {
+                    const dica = document.createElement('div');
+                    dica.classList.add('hint-move');
+                    casa.appendChild(dica);
+                }
+            }
+        }
+    }
+}
+function limparDicas() { document.querySelectorAll('.hint-move').forEach(d => d.remove()); }
+function mostrarErro(casa) {
+    const erro = document.createElement('div');
+    erro.classList.add('error-move');
+    casa.appendChild(erro);
+    setTimeout(() => erro.classList.add('fade-out'), 100);
+    setTimeout(() => erro.remove(), 2000);
+}
+
+// ==========================================
+// 3. TEMA, RESET E EASTER EGG
+// ==========================================
+
+const btnTema = document.getElementById('btn-tema');
+const btnReset = document.getElementById('btn-reset');
+const body = document.body;
+const treeEgg = document.getElementById('tree-egg');
+const audioEgg = document.getElementById('sfx-egg');
+
+// --- BOTÃO DE RESET (CORRIGIDO) ---
+btnReset.addEventListener('click', () => {
+    // 1. Clona a matriz padrão novamente (Reseta estado real)
+    configuracaoAtual = JSON.parse(JSON.stringify(LAYOUT_PADRAO));
+    
+    // 2. Reseta variaveis
+    turno = 'white';
+    turnoElement.innerText = 'Brancas';
+    
+    // 3. Redesenha
+    criarTabuleiro();
+});
+
+// --- TEMA (DARK MODE) ---
+btnTema.addEventListener('click', (e) => {
+    // Se estiver arrastando, não clica
+    if (btnTema.classList.contains('dragging')) return;
+
+    body.classList.toggle('dark');
+    const img = btnTema.querySelector('img');
+    
+    if (body.classList.contains('dark')) {
+        img.src = 'assets/buttons/sun.png';
+        // Mostra árvore no Dark Mode
+        treeEgg.classList.remove('hidden');
+    } else {
+        img.src = 'assets/buttons/moon.png';
+        // Esconde árvore no Light Mode
+        treeEgg.classList.add('hidden');
+    }
+});
+
+// --- EASTER EGG (DRAG DO BOTÃO SOL) ---
+
+let isDraggingBtn = false;
+let btnStartX, btnStartY;
+let btnInitialLeft, btnInitialTop;
+
+btnTema.addEventListener('mousedown', (e) => {
+    // Só arrasta se for Dark Mode (Sol)
+    if (!body.classList.contains('dark')) return;
+
+    e.preventDefault();
+    isDraggingBtn = true;
+    
+    // Salva pos inicial do mouse
+    btnStartX = e.clientX;
+    btnStartY = e.clientY;
+
+    // Prepara botão
+    btnTema.classList.add('dragging');
+    btnTema.classList.remove('returning'); // Para animação de volta se houver
+    
+    document.addEventListener('mousemove', moveBtnTema);
+    document.addEventListener('mouseup', dropBtnTema);
+});
+
+function moveBtnTema(e) {
+    if (!isDraggingBtn) return;
+    
+    const deltaX = e.clientX - btnStartX;
+    const deltaY = e.clientY - btnStartY;
+    
+    btnTema.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+}
+
+function dropBtnTema(e) {
+    if (!isDraggingBtn) return;
+    isDraggingBtn = false;
+
+    document.removeEventListener('mousemove', moveBtnTema);
+    document.removeEventListener('mouseup', dropBtnTema);
+
+    // CHECA COLISÃO COM A ÁRVORE
+    const btnRect = btnTema.getBoundingClientRect();
+    const treeRect = treeEgg.getBoundingClientRect();
+
+    // Lógica simples de colisão (sobreposição de retângulos)
+    const colidiu = !(btnRect.right < treeRect.left || 
+                      btnRect.left > treeRect.right || 
+                      btnRect.bottom < treeRect.top || 
+                      btnRect.top > treeRect.bottom);
+
+    if (colidiu) {
+        // Toca o som!
+        audioEgg.currentTime = 0;
+        audioEgg.play();
+        
+        // Efeito visual (opcional: a árvore balança ou algo assim)
+        treeEgg.style.filter = "brightness(1.5)";
+        setTimeout(() => treeEgg.style.filter = "", 200);
+    }
+
+    // Retorna o botão pro lugar (efeito elástico)
+    btnTema.classList.remove('dragging');
+    btnTema.classList.add('returning');
+    btnTema.style.transform = `translate(0px, 0px)`;
+}
+
+
+// Inicialização
+criarTabuleiro();
+setCursor('idle');

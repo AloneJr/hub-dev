@@ -162,16 +162,7 @@ body.dark{
 /* =========================
    LAYOUT PRINCIPAL
 ========================= */
-.layout {
-  /* width: min(1100px, 92vw);
-  margin: 0 auto;
-
-  flex: 1;
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 18px;
-
-  padding: 10px 0 24px; */  
+.layout {   
   width: 100%;
   flex: 1;
 
@@ -226,58 +217,70 @@ body.dark{
 /* =========================
    TABULEIRO
 ========================= */
-.board{
+.board {
   width: min(560px, 92vw);
   aspect-ratio: 1 / 1;
 
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr); /* ✅ ISSO resolve o estica/compacta */
+  grid-template-rows: repeat(8, 1fr);
 
   border-radius: 16px;
   overflow: hidden;
   border: 3px solid rgba(255,255,255,.15);
-
+  position: relative; /* Essencial para os indicadores funcionarem */
   image-rendering: pixelated;
+  user-select: none; /* Impede selecionar imagens ao arrastar */
 }
 
-
-.cell{
-  min-width: 0;   /* ✅ impede conteúdo forçar largura */
-  min-height: 0;  /* ✅ impede conteúdo forçar altura */
-
+/* Renomeado de .cell para .square */
+.square {
+  min-width: 0;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Tiles do tabuleiro */
-.cell.light {
+.square.white {
   background: url("assets/board/tile_light.png") center/cover no-repeat;
-  background-size: 100% 100%; /* encaixa exatamente na célula */
-  image-rendering: pixelated;
 }
-
-.cell.dark {
+.square.black {
   background: url("assets/board/tile_dark.png") center/cover no-repeat;
-  background-size: 100% 100%; /* encaixa exatamente na célula */
-  image-rendering: pixelated;
 }
 
 /* =========================
    PEÇAS (PIXEL ART)
 ========================= */
 .piece {
-  width: 100%;
-  height: 100%;
+  width: 86%; /* Tamanho levemente menor que a casa */
+  height: 86%;
+  object-fit: contain; /* Garante que a imagem não estique */
+  
+  cursor: grab;
+  z-index: 10;
+  
+  /* Animação de "Flutuar" */
+  animation: pieceBob 1.8s ease-in-out infinite;
+  
+  /* Transição suave para quando a peça volta */
+  transition: transform 0.1s linear; 
 
-  display: grid;
-  place-items: center;
+  position: relative;
+}
 
-  pointer-events: none;
+.piece:active {
+  cursor: grabbing;
+  animation: none; /* Para a animação enquanto segura */
+  transform: scale(1.1); /* Leve zoom ao segurar */
+}
+
+/* Animação de retorno suave (Mov. Invál.) */
+.piece.snap-back {
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .piece::before{
@@ -302,55 +305,8 @@ body.dark{
 }
 
 @keyframes pieceBob {
-  0%, 100% {
-    transform: translate(5%, -1%);
-  }
-  50% {
-    transform: translate(
-      5%,
-      calc(-1% - var(--bobAmp, 5px))
-    );
-  }
-}
-
-
-/* Brancas */
-.piece.w-pawn::before   { background-image: url("assets/pieces/w_pawn.png"); }
-.piece.w-rook::before   { background-image: url("assets/pieces/w_rook.png"); }
-.piece.w-knight::before { background-image: url("assets/pieces/w_knight.png"); }
-.piece.w-bishop::before { background-image: url("assets/pieces/w_bishop.png"); }
-.piece.w-queen::before  { background-image: url("assets/pieces/w_queen.png"); }
-.piece.w-king::before   { background-image: url("assets/pieces/w_king.png"); }
-
-/* Pretas */
-.piece.b-pawn::before   { background-image: url("assets/pieces/b_pawn.png"); }
-.piece.b-rook::before   { background-image: url("assets/pieces/b_rook.png"); }
-.piece.b-knight::before { background-image: url("assets/pieces/b_knight.png"); }
-.piece.b-bishop::before { background-image: url("assets/pieces/b_bishop.png"); }
-.piece.b-queen::before  { background-image: url("assets/pieces/b_queen.png"); }
-.piece.b-king::before   { background-image: url("assets/pieces/b_king.png"); }
-
-.piece.w-knight::before,
-.piece.b-knight::before { transform: translateY(-8%); }
-
-.piece.w-king::before,
-.piece.b-king::before { transform: translateY(-7%); }
-
-/* .piece.w-knight, .piece.b-knight { --yFix: -2px; }
-.piece.w-king, .piece.b-king { --yFix: -1px; } */
-
-/* Peças altas (rei / rainha) */
-.piece.w-king,
-.piece.b-king,
-.piece.w-queen,
-.piece.b-queen {
-  --bobAmp: 1.5px;
-}
-
-/* Peças baixas (peão) */
-.piece.w-pawn,
-.piece.b-pawn {
-  --bobAmp: 2.5px;
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5%); }
 }
 
 /* =========================
@@ -473,60 +429,128 @@ body.dark{
   opacity: 0;
 }
 
+/* =========================
+   NOVAS INTERAÇÕES (DRAG & DROP)
+========================= */
+
+/* O "O" (Movimento Válido) */
+.hint-move {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url('assets/ok_tile.png');
+    background-size: cover;
+    opacity: 0.6;
+    pointer-events: none; /* O mouse ignora isso e clica na casa */
+    z-index: 5;
+}
+
+/* O "X" (Erro) */
+.error-move {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: url('assets/error_tile.png');
+    background-size: cover;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 2s ease-out; /* Demora 2s para sumir totalmente */
+}
+
+/* Classe auxiliar para iniciar o sumiço do X */
+.fade-out {
+    opacity: 0;
+}
+
+/* =========================
+   MOUSE INVISÍVEL GLOBAL
+========================= */
+
+/* Força o cursor a sumir em TODOS os elementos do site */
+html, body, *, .btn, .piece, .square {
+    cursor: none !important;
+}
+
+/* Garante que o seu cursor personalizado fique sempre no topo */
+#cursor-user {
+    pointer-events: none; /* O clique "passa" por ele e acerta o botão/peça */
+    z-index: 999999; /* Valor absurdo para garantir que nada cubra ele */
+    display: block !important; /* Garante que ele nunca suma via CSS */
+}
+
 /* ===== Easter egg (Terraria) ===== */
 
+.hidden {
+    display: none !important;
+    opacity: 0;
+    pointer-events: none;
+}
+
 #btn-tema{
-  position: relative; /* para garantir que o botão tenha referência */
-  touch-action: none; /* ajuda no drag no touchpad/touch */
+  position: relative; 
+  touch-action: none; 
   user-select: none;
+  z-index: 1000; /* Garante que fique acima de tudo ao arrastar */
 }
 
-#btn-tema.dragging{
-  transition: none !important;
+#btn-tema.dragging {
+    transition: none !important;
 }
 
-#btn-tema.returning{
-  transition: transform 220ms ease;
+#btn-tema.returning {
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
 }
 
 /* árvore fixa na tela */
-.e-tree{
-  position: fixed;
-  right: 26px;
-  bottom: 18px;
-  width: 110px;          /* ajuste se quiser maior */
-  height: auto;
-  image-rendering: pixelated;
-  z-index: 5000;
-  pointer-events: auto;
+.e-tree {
+    position: fixed;
+    right: 26px;
+    bottom: 18px;
+    width: 110px;
+    height: auto;
+    image-rendering: pixelated;
+    z-index: 5000;
+    pointer-events: auto;
+    
+    /* Animação suave de entrada */
+    transition: opacity 0.5s ease;
+}
+
+/* Quando está hidden, aplicamos opacidade 0 também para transição */
+.e-tree.hidden {
+    display: block !important; /* Mantém no DOM */
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* tooltip pixel */
-.e-tree-tooltip{
-  position: fixed;
-  right: 26px;
-  bottom: 140px;
-  padding: 10px 12px;
+.e-tree-tooltip {
+    position: fixed;
+    right: 26px;
+    bottom: 140px;
+    padding: 10px 12px;
 
-  background: rgba(0,0,0,.75);
-  border: 2px solid rgba(255,255,255,.20);
-  border-radius: 10px;
+    background: rgba(0,0,0,.75);
+    border: 2px solid rgba(255,255,255,.20);
+    border-radius: 10px;
 
-  color: #fff;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 10px;
-  line-height: 1.3;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    line-height: 1.3;
 
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 150ms ease, transform 150ms ease;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 150ms ease, transform 150ms ease;
 
-  z-index: 5001;
-  pointer-events: none;
+    z-index: 5001;
+    pointer-events: none;
 }
 
-.e-tree:hover + .e-tree-tooltip{
-  opacity: 1;
-  transform: translateY(0);
+.e-tree:hover + .e-tree-tooltip,
+.e-tree-tooltip.show { /* Classe extra caso queira forçar via JS */
+    opacity: 1;
+    transform: translateY(0);
 }
 
