@@ -1,36 +1,89 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Everything Constellation | O Hub do Conhecimento</title>
+    <meta name="description" content="Um mapa interativo que conecta a origem do Universo aos principais ramos das ciências naturais.">
+    <title>Everything Constellation | Atlas das Ciências Naturais</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="intro-layer" class="intro-layer">
-        <p id="texto-1" class="intro-texto">Constelações contam histórias,</p>
-        <p id="texto-2" class="intro-texto">a minha te conta sobre tudo.</p>
-        <p id="texto-3" class="intro-texto">E tudo começou com:</p>
-    </div>
-    <div id="texto-final" class="texto-final"></div>
-    <div class="ui-layer">
-        <!-- <h1>NEXUS <span class="destaque">MAP</span></h1> -->
-        <p>Arraste para explorar o conhecimento.</p>
-    </div>
+    <div class="deep-space" aria-hidden="true"></div>
 
-    <div id="viewport" class="viewport">
+    <section id="intro-layer" class="intro-layer" aria-label="Introdução">
+        <div class="intro-orbit" aria-hidden="true"></div>
+        <div class="intro-copy">
+            <p class="intro-kicker">Everything Constellation</p>
+            <p id="texto-1" class="intro-texto">Constelações contam histórias.</p>
+            <p id="texto-2" class="intro-texto">Esta conecta as ciências da natureza.</p>
+            <p id="texto-3" class="intro-texto">E todas partem do mesmo céu.</p>
+            <p id="texto-final" class="intro-final">O Big Bang</p>
+        </div>
+        <button id="pular-intro" class="skip-intro" type="button">Pular introdução</button>
+    </section>
+
+    <header class="ui-layer">
+        <a class="brand" href="../index.html" aria-label="Voltar para o portfólio">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span>
+                <strong>Everything</strong>
+                <small>Constellation</small>
+            </span>
+        </a>
+
+        <p class="explore-hint">
+            <span class="desktop-hint">Arraste para explorar · use a roda para aproximar</span>
+            <span class="touch-hint">Arraste e use dois dedos para aproximar</span>
+        </p>
+    </header>
+
+    <aside class="legend" aria-label="Cores dos ramos científicos">
+        <p>Ramos naturais</p>
+        <ul>
+            <li><span class="legend-dot fisica"></span>Física</li>
+            <li><span class="legend-dot astronomia"></span>Astronomia</li>
+            <li><span class="legend-dot quimica"></span>Química</li>
+            <li><span class="legend-dot biologia"></span>Biologia</li>
+        </ul>
+    </aside>
+
+    <nav class="map-controls" aria-label="Controles do mapa">
+        <button id="zoom-in" type="button" aria-label="Aproximar mapa">+</button>
+        <button id="zoom-out" type="button" aria-label="Afastar mapa">−</button>
+        <button id="reset-view" class="reset-view" type="button" aria-label="Voltar ao centro">
+            <span aria-hidden="true">◎</span>
+        </button>
+        <output id="zoom-status" aria-live="polite">44%</output>
+    </nav>
+
+    <main id="viewport" class="viewport" tabindex="0" aria-label="Mapa interativo das ciências naturais">
         <div id="universe" class="universe">
-            <svg id="lines-layer"></svg>
-            </div>
-    </div>
-    
-    <div id="info-modal" class="modal hidden">
-        <button onclick="fecharModal()">X</button>
-        <h2 id="modal-titulo"></h2>
-        <p id="modal-texto"></p>
-    </div>
+            <div class="nebula nebula-a" aria-hidden="true"></div>
+            <div class="nebula nebula-b" aria-hidden="true"></div>
+            <div class="nebula nebula-c" aria-hidden="true"></div>
+            <div id="starfield" class="starfield" aria-hidden="true"></div>
+            <svg id="lines-layer" viewBox="0 0 3600 2800" aria-hidden="true"></svg>
+            <div id="branch-labels" aria-hidden="true"></div>
+            <div id="nodes-layer"></div>
+        </div>
+    </main>
 
+    <aside id="info-panel" class="info-panel" aria-live="polite" aria-labelledby="modal-titulo" hidden>
+        <button id="fechar-modal" class="close-panel" type="button" aria-label="Fechar curiosidade">×</button>
+        <div class="panel-meta">
+            <span id="modal-area" class="area-pill">Origem</span>
+            <span id="modal-escala" class="scale-label"></span>
+        </div>
+        <h1 id="modal-titulo"></h1>
+        <p id="modal-texto"></p>
+        <p id="modal-connections" class="connection-count"></p>
+        <a id="modal-fonte" class="source-link" href="#" target="_blank" rel="noopener noreferrer">Consultar fonte <span aria-hidden="true">↗</span></a>
+    </aside>
+
+    <script src="data.js"></script>
     <script src="scripts.js"></script>
 </body>
 </html>

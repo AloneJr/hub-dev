@@ -7,7 +7,7 @@
 
 > Um ecossistema centralizado de projetos interativos.
 
-Este Hub foi desenvolvido para unificar meus projetos de estudo em uma interface moderna e responsiva. Utilizando o conceito de **Bento Grid UI** e **Glassmorphism**, o projeto serve como um "Monorepo" que gerencia e apresenta aplicações complexas de Front-end.
+Este hub reúne projetos de estudo que exploram integração com APIs, regras de negócio, visualização de dados e experiências interativas. A interface utiliza **Bento Grid UI** e **Glassmorphism** para apresentar cada aplicação com uma identidade própria.
 
 🔗 **[Acesse o Portfólio Online](https://alonejr.github.io/hub-dev/)**
 
@@ -16,41 +16,47 @@ Este Hub foi desenvolvido para unificar meus projetos de estudo em uma interface
 ## 🖼️ Projetos Integrados
 
 ### 1. 🌌 [Everything Constellation](./everything-constellation)
-Uma engine de visualização de dados infinita criada com **Vanilla JS** puro.
-* **Destaque Técnico:** Algoritmos matemáticos para simular física de Pan (arrastar), Zoom dinâmico e renderização de coordenadas JSON sem uso de Canvas API.
+Um atlas interativo que conecta o Big Bang aos ramos da Física, Astronomia, Química e Biologia.
+
+* **Destaque técnico:** mapa gerado por dados com 33 conceitos, conexões SVG, céu procedural, pan e zoom com mouse, teclado, toque e gesto de pinça — tudo em **Vanilla JavaScript**, sem Canvas.
 
 ### 2. ♟️ [JS Chess](./xadrez)
-Um jogo de xadrez completo funcional no navegador.
-* **Destaque Técnico:** Lógica de validação de movimentos (Peão, Cavalo, Bispo, etc.) utilizando manipulação de Matrizes Bidimensionais.
+Um jogo de xadrez em desenvolvimento, com tabuleiro dinâmico, identidade em pixel art e validação das movimentações básicas.
+
+* **Destaque técnico:** controle de estado, turnos, drag-and-drop e regras das peças utilizando matrizes bidimensionais.
 
 ### 3. 🗣️ [Tradutor Web](./tradutor)
 Aplicação de tradução em tempo real.
-* **Destaque Técnico:** Consumo de APIs REST assíncronas e uso da Web Speech API para reconhecimento de voz.
+
+* **Destaque técnico:** consumo assíncrono da API MyMemory e uso da Web Speech API para reconhecimento de voz.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-* **HTML5 Semântico**
-* **CSS3 Avançado:** CSS Grid, Flexbox, Variáveis CSS, Keyframe Animations, Media Queries (Mobile First).
-* **JavaScript (ES6+):** Async/Await, DOM Manipulation, JSON, Event Listeners.
-* **Git:** Gerenciamento de sub-projetos e versionamento.
+* **HTML5 semântico**
+* **CSS3:** Grid, Flexbox, variáveis, animações e media queries.
+* **JavaScript (ES6+):** async/await, manipulação do DOM, estruturas de dados e eventos.
+* **SVG:** conexões e visualizações vetoriais.
+* **Git:** gerenciamento dos subprojetos e versionamento.
 
 ---
 
-## 📂 Como rodar localmente
+## 📂 Como executar localmente
 
+Clone este repositório:
 
-# Clone este repositório
 ```bash
 git clone https://github.com/alonejr/hub-dev.git
 ```
 
-# Entre na pasta
+Entre na pasta:
+
 ```bash
 cd hub-dev
 ```
-# Abra o index.html no seu navegador
+
+Abra o arquivo `index.html` no navegador ou utilize um servidor local.
 
 <p align="center">
 Desenvolvido por <a href="https://github.com/alonejr">Jeryel A.</a>
