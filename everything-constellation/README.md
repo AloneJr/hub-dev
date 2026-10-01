@@ -8,11 +8,11 @@ Um atlas interativo que parte do Big Bang e organiza conceitos de Física, Astro
 
 - Mapa espacial gerado por dados, sem Canvas ou bibliotecas externas.
 - 33 conceitos distribuídos em quatro ramos científicos identificados por cor.
-- Ligações curvas em SVG e céu procedural em camadas.
+- Ligações retas em SVG, como os traços de constelações, e céu procedural em camadas.
 - Pan e zoom com foco na posição do ponteiro.
 - Suporte a mouse, teclado, toque e gesto de pinça.
 - Painéis curtos com escala, descrição e fonte para consulta.
-- Introdução cinematográfica curta, pulável e exibida apenas na primeira visita.
+- Introdução cinematográfica ritmada, pulável e exibida apenas na primeira visita.
 - Respeito à preferência de redução de movimento do navegador.
 
 ## Organização

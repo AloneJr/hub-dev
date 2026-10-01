@@ -90,23 +90,14 @@ function criarCeu() {
     starfield.appendChild(fragmento);
 }
 
-function criarCaminho(origem, destino) {
-    const distanciaX = destino.x - origem.x;
-    const controle = Math.max(90, Math.abs(distanciaX) * 0.48);
-    const direcao = Math.sign(distanciaX) || 1;
-
-    return [
-        `M ${origem.x} ${origem.y}`,
-        `C ${origem.x + controle * direcao} ${origem.y},`,
-        `${destino.x - controle * direcao} ${destino.y},`,
-        `${destino.x} ${destino.y}`
-    ].join(" ");
+function criarSegmento(origem, destino) {
+    return `M ${origem.x} ${origem.y} L ${destino.x} ${destino.y}`;
 }
 
 function adicionarConexao(origem, destino) {
     if (!destino) return;
     const cor = CORES[destino.area] || CORES.origem;
-    const caminho = criarCaminho(origem, destino);
+    const caminho = criarSegmento(origem, destino);
 
     ["connection-glow", "connection"].forEach(classe => {
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -333,12 +324,19 @@ window.addEventListener("resize", () => {
 
 const introLayer = document.getElementById("intro-layer");
 let introCancelada = false;
+const TEMPO_INTRO = {
+    pausaInicial: 650,
+    intervaloLetra: 28,
+    leitura: 1700,
+    leituraFinal: 2200,
+    transicao: 700
+};
 
 function esperar(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function revelarTexto(id, leitura = 650) {
+async function revelarTexto(id, leitura = TEMPO_INTRO.leitura) {
     if (introCancelada) return;
     const elemento = document.getElementById(id);
     const texto = elemento.textContent;
@@ -353,11 +351,13 @@ async function revelarTexto(id, leitura = 650) {
     });
 
     const ordem = [...letras].sort(() => Math.random() - 0.5);
-    ordem.forEach((letra, indice) => setTimeout(() => { letra.style.opacity = "1"; }, indice * 14));
-    await esperar(ordem.length * 14 + leitura);
+    ordem.forEach((letra, indice) => {
+        setTimeout(() => { letra.style.opacity = "1"; }, indice * TEMPO_INTRO.intervaloLetra);
+    });
+    await esperar(ordem.length * TEMPO_INTRO.intervaloLetra + leitura);
     if (introCancelada) return;
     elemento.style.opacity = "0";
-    await esperar(420);
+    await esperar(TEMPO_INTRO.transicao);
     elemento.style.display = "none";
 }
 
@@ -367,7 +367,7 @@ function finalizarIntro() {
     introLayer.classList.add("is-finished");
 
     try {
-        localStorage.setItem("introAssistidaV2", "true");
+        localStorage.setItem("introAssistidaV3", "true");
     } catch (erro) {
         console.info("A preferência da introdução não pôde ser salva.", erro);
     }
@@ -378,7 +378,7 @@ async function iniciarJornada() {
     let jaAssistiu = false;
 
     try {
-        jaAssistiu = localStorage.getItem("introAssistidaV2") === "true";
+        jaAssistiu = localStorage.getItem("introAssistidaV3") === "true";
     } catch (erro) {
         console.info("A preferência da introdução não pôde ser lida.", erro);
     }
@@ -388,11 +388,11 @@ async function iniciarJornada() {
         return;
     }
 
-    await esperar(350);
+    await esperar(TEMPO_INTRO.pausaInicial);
     await revelarTexto("texto-1");
     await revelarTexto("texto-2");
     await revelarTexto("texto-3");
-    await revelarTexto("texto-final", 850);
+    await revelarTexto("texto-final", TEMPO_INTRO.leituraFinal);
     finalizarIntro();
 }
 
