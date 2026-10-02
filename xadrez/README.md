@@ -1,80 +1,141 @@
-# ♟️ JS Chess Game (Work in Progress)
+# Xadrez Pixelado
 
-![Badge em Desenvolvimento](http://img.shields.io/static/v1?label=STATUS&message=EM%20DESENVOLVIMENTO&color=GREEN&style=for-the-badge)
-![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
-![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
+![Status: jogável](https://img.shields.io/static/v1?label=STATUS&message=JOG%C3%81VEL&color=00a86b&style=for-the-badge)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
 
-> Um jogo de xadrez desenvolvido inteiramente com **JavaScript Puro (Vanilla JS)**, focado em manipulação de DOM, lógica de matrizes e estilização avançada com CSS.
+Jogo de xadrez local para duas pessoas, desenvolvido em JavaScript puro. O projeto combina um motor de regras independente da interface com uma identidade visual autoral em pixel art.
 
----
+**[Jogar no GitHub Pages](https://alonejr.github.io/hub-dev/xadrez/)**
 
-## 🖼️ Preview
-![Screenshot do Projeto](./assets/cover.png)
+![Captura do projeto](./assets/cover.png)
 
----
+## Objetivo do projeto
 
-## 📝 Sobre o Projeto
+O Xadrez Pixelado faz parte do meu portfólio de desenvolvimento front-end. Ele foi criado para exercitar regras de negócio, matrizes, controle de estado, eventos de ponteiro, acessibilidade e separação entre lógica e apresentação.
 
-Este projeto é parte do meu portfólio de **Desenvolvedor Front-end**. O objetivo principal é solidificar conhecimentos em lógica de programação complexa, fugindo dos projetos "padrão" e enfrentando desafios reais de controle de estado e regras de negócio.
+As peças, o tabuleiro, os botões e os cursores foram desenhados manualmente em pixel art. As paisagens de fundo foram geradas com auxílio de inteligência artificial para complementar a ambientação.
 
-Atualmente, o projeto conta com a renderização dinâmica do tabuleiro e peças, além de um sistema visual de movimentação (Drag & Drop customizado).
+## Funcionalidades
 
-### 🎨 Design & Assets
-Uma das características únicas deste projeto é a identidade visual personalizada:
-* **Sprites Originais:** Todas as peças (Peões, Torres, etc.), o tabuleiro e o cursor customizado foram desenhados e criados **manualmente por mim** em Pixel Art.
-* **Background:** A imagem de fundo atmosférica foi gerada com auxílio de Inteligência Artificial (ChatGPT/DALL-E) para compor a imersão do jogo.
+### Regras de xadrez
 
----
+- Movimentos legais de peão, torre, cavalo, bispo, dama e rei.
+- Capturas e bloqueio de caminho para peças deslizantes.
+- Detecção de casas atacadas, xeque e auto-xeque.
+- Xeque-mate e afogamento.
+- Roque pequeno e grande, incluindo as restrições de casas atacadas.
+- En passant.
+- Promoção para dama, torre, bispo ou cavalo.
+- Empate por repetição tripla, regra dos 50 movimentos e material insuficiente.
+- Impedimento de captura direta do rei.
 
-## 🛠️ Tecnologias Utilizadas
-- **HTML5 Semântico**: Estrutura da aplicação.
-- **CSS3 Moderno**: Uso de Variáveis (`:root`), Flexbox/Grid e animações (`keyframes`).
-- **JavaScript (ES6+)**: 
-  - Manipulação intensa do DOM.
-  - Lógica de Matrizes para o tabuleiro.
-  - Event Listeners para interação de mouse/toque.
+### Experiência de jogo
 
----
+- Arrastar e soltar com mouse, caneta ou toque.
+- Movimento alternativo por clique/toque em duas etapas.
+- Navegação das casas por teclado com `Tab`, `Enter` e `Espaço`.
+- Indicação dos movimentos legais, última jogada e rei em xeque.
+- Histórico em notação algébrica, incluindo roques, promoções, xeque e mate.
+- Exibição das peças capturadas por cada lado.
+- Desfazer jogada e reiniciar partida.
+- Painel de estado com mensagens de turno e encerramento.
+- Escolha acessível da peça de promoção.
+- Layout responsivo para computador e celular.
 
-## 🚀 Funcionalidades Atuais
-- [x] Renderização automática do tabuleiro 8x8 via JS.
-- [x] Posicionamento inicial das peças.
-- [x] **Arte Própria:** Sprites e cursores exclusivos.
-- [x] Sistema de "Arrastar e Soltar" (Drag & Drop) visual.
-- [x] Design responsivo e estilização temática.
+### Identidade visual
 
----
+- Sprites próprios para todas as peças.
+- Cursores animados diferentes para cada turno: jogador nas brancas e o conjunto visual da futura IA nas pretas.
+- Tema claro e escuro persistido no navegador.
+- Easter egg interativo no tema escuro.
+- Respeito à preferência de redução de movimento do sistema.
 
-## 🚧 Roadmap (Próximas Atualizações)
-Este projeto está em constante evolução. As próximas etapas de desenvolvimento focam na **Lógica do Jogo (Game Rules)**:
+> Os sprites de IA representam visualmente o turno das pretas, mas não existe IA jogando nesta versão.
 
-- [ ] **Validação de Movimento:** Implementar regras específicas para cada peça (ex: Bispo só anda na diagonal).
-- [ ] **Captura de Peças:** Lógica para remover peças adversárias do tabuleiro.
-- [ ] **Turnos:** Alternância entre Jogador Branco e Jogador Preto.
-- [ ] **Movimentos Especiais:** Roque (Castling) e En Passant.
-- [ ] **Condições de Vitória:** Detecção de Xeque e Xeque-mate.
+## Arquitetura
 
----
+O projeto não depende de frameworks nem de bibliotecas de xadrez.
 
-## 💻 Como rodar o projeto localmente
-
-1. Clone o repositório:
-```bash
-git clone https://github.com/alonejr/xadrez-pixelado.git
+```text
+xadrez/
+├── engine.js             # Estado e regras puras, sem acesso ao DOM
+├── scripts.js            # Renderização, entradas e experiência da partida
+├── styles.css            # Layout, pixel art, estados e responsividade
+├── index.html            # Estrutura semântica da interface
+├── tests/
+│   └── engine.test.js    # Testes automatizados do motor
+└── assets/               # Sprites, cenários, botões e sons
 ```
-2. Entre na pasta do projeto
+
+O motor mantém, entre outros dados:
+
+- posição das peças;
+- lado a jogar;
+- direitos de roque;
+- alvo temporário de en passant;
+- relógio da regra dos 50 movimentos;
+- número do lance;
+- histórico e contagem de repetição das posições.
+
+Ele expõe geração de movimentos pseudo-legais e legais separadamente. Cada candidato é aplicado a uma cópia do estado e descartado quando deixa o próprio rei em xeque. A interface apenas consulta e apresenta esse resultado.
+
+O motor também consegue ler e gerar posições no formato FEN. Essa capacidade já é usada nos testes e poderá alimentar desafios ou análise de posições no futuro.
+
+## Testes
+
+Os testes usam o executor nativo do Node.js, sem dependências adicionais:
+
 ```bash
-cd xadrez-pixelado
+node --test tests/engine.test.js
 ```
-3. Abra o arquivo index.html no seu navegador de preferência ou pelo LiveServer do VSCode
 
----
+Os cenários cobrem:
 
-🤝 Contribuição e Feedback
-Feedbacks são sempre bem-vindos! Se você tiver alguma sugestão de melhoria na lógica ou encontrar algum bug, sinta-se à vontade para abrir uma issue ou entrar em contato.
+- contagens de referência da posição inicial (`20`, `400`, `8902` e `197281` nós);
+- movimentos que expõem o próprio rei;
+- tentativa de captura do rei;
+- roques válidos e passagem por casa atacada;
+- en passant;
+- quatro opções de promoção;
+- xeque-mate e notação algébrica;
+- afogamento;
+- material insuficiente;
+- regra dos 50 movimentos;
+- repetição tripla.
 
-<p align="center">
-  Feito com ♟️ e 💻 por <a href="https://github.com/AloneJr" target="_blank">Jeryel A.</a>
-</p>
+## Como executar localmente
 
+1. Clone o monorepositório do portfólio:
+
+```bash
+git clone https://github.com/AloneJr/hub-dev.git
+```
+
+2. Entre na pasta do projeto:
+
+```bash
+cd hub-dev/xadrez
+```
+
+3. Abra a pasta com um servidor local, como o Live Server do VS Code, e acesse o `index.html`.
+
+## Próxima etapa: IA
+
+A próxima grande evolução planejada é um modo contra o computador. Essa etapa foi deixada intencionalmente fora da implementação atual para que o algoritmo seja estudado e desenvolvido manualmente.
+
+Possíveis etapas futuras:
+
+- função de avaliação da posição;
+- minimax;
+- poda alpha-beta;
+- níveis de profundidade;
+- execução em Web Worker para não bloquear a interface;
+- animação do cursor da IA escolhendo e movimentando a peça.
+
+Como o motor já gera todas as jogadas legais sem depender da interface, a futura IA poderá trabalhar diretamente sobre estados confiáveis e nunca precisará manipular o DOM para decidir um lance.
+
+## Autor
+
+Feito por [Jeryel A. Silva](https://github.com/AloneJr).

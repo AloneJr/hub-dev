@@ -3,56 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jogo de xadrez completo em JavaScript puro com identidade visual em pixel art.">
     <title>Xadrez Pixelado - Jeryel</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/pieces/w_queen.png">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
     <header class="topo">
-        <h1 class="logo"> 
-            <img src="assets/pieces/w_queen.png" alt="Logo"> 
-            <span>Xadrez v.02</span>
+        <h1 class="logo">
+            <img src="assets/pieces/w_queen.png" alt="" aria-hidden="true">
+            <span>Xadrez v.03</span>
         </h1>
 
-        <div class="acoes">
-            <button class="btn btn-icon" id="btn-reset">
-                <img src="assets/buttons/retry_b.png" alt="Reiniciar">
+        <div class="acoes" aria-label="Ações da partida">
+            <button class="btn btn-icon btn-text-icon" id="btn-undo" type="button" aria-label="Desfazer última jogada" title="Desfazer última jogada" disabled>
+                <span aria-hidden="true">↶</span>
             </button>
-            <button class="btn btn-icon" id="btn-tema">
-                <img id="tema-icone" src="assets/buttons/moon.png" alt="Tema">
+            <button class="btn btn-icon" id="btn-reset" type="button" aria-label="Reiniciar partida" title="Reiniciar partida">
+                <img src="assets/buttons/retry_b.png" alt="" aria-hidden="true">
+            </button>
+            <button class="btn btn-icon" id="btn-tema" type="button" aria-label="Alternar tema" title="Alternar tema">
+                <img id="tema-icone" src="assets/buttons/moon.png" alt="" aria-hidden="true">
             </button>
         </div>
     </header>
 
-    <main class="layout">        
-        <section class="painel">
-            <h2>Status</h2>
-            <p><strong>Turno:</strong> <span id="turno">Brancas</span></p>
-            <p><strong>Estado:</strong> <span id="estado-jogo">Jogando</span></p>
-            <p class="dica">Arraste as peças para jogar.</p>
+    <main class="layout">
+        <aside class="painel painel-status" aria-labelledby="status-title">
+            <h2 id="status-title">Status</h2>
+
+            <div class="status-line">
+                <span>Turno</span>
+                <strong id="turno">Brancas</strong>
+                <span id="turn-cursor" class="turn-cursor user-turn" aria-hidden="true"></span>
+            </div>
+
+            <div class="status-line status-game">
+                <span>Estado</span>
+                <strong id="estado-jogo">Jogando</strong>
+            </div>
+
+            <p id="mensagem-jogo" class="mensagem-jogo" aria-live="polite">
+                Brancas começam. Arraste uma peça ou toque para selecionar.
+            </p>
+
+            <div class="legend" aria-label="Legenda do tabuleiro">
+                <span><i class="legend-mark legal"></i> movimento legal</span>
+                <span><i class="legend-mark last"></i> última jogada</span>
+                <span><i class="legend-mark check"></i> rei em xeque</span>
+            </div>
+        </aside>
+
+        <section class="game-area" aria-label="Partida de xadrez">
+            <div class="board-shell">
+                <div class="board" id="board" role="grid" aria-label="Tabuleiro de xadrez. Brancas na parte inferior."></div>
+            </div>
+            <p class="board-help">Arraste, clique ou toque. Use Enter ou Espaço pelo teclado.</p>
         </section>
 
-        <section class="game-area">
-            <div class="board" id="board"></div>
-        </section>
+        <aside class="painel painel-partida" aria-labelledby="match-title">
+            <h2 id="match-title">Partida</h2>
 
-        <section></section> 
+            <section class="capture-section" aria-labelledby="captures-white-title">
+                <h3 id="captures-white-title">Capturadas pelas brancas</h3>
+                <div id="captures-white" class="captured-list" aria-live="polite">
+                    <span class="empty-state">Nenhuma</span>
+                </div>
+            </section>
+
+            <section class="capture-section" aria-labelledby="captures-black-title">
+                <h3 id="captures-black-title">Capturadas pelas pretas</h3>
+                <div id="captures-black" class="captured-list" aria-live="polite">
+                    <span class="empty-state">Nenhuma</span>
+                </div>
+            </section>
+
+            <section class="history-section" aria-labelledby="history-title">
+                <h3 id="history-title">Histórico</h3>
+                <div class="history-head" aria-hidden="true">
+                    <span>#</span><span>Brancas</span><span>Pretas</span>
+                </div>
+                <ol id="move-history" class="move-history">
+                    <li class="empty-history">A partida ainda não começou.</li>
+                </ol>
+            </section>
+        </aside>
     </main>
 
     <footer class="rodape">
-        <small>Feito por Jeryel A Silva • HTML/CSS/JS</small>        
+        <small>Feito por Jeryel A Silva • HTML/CSS/JS</small>
     </footer>
 
-    <div id="cursor-user" class="cursor idle"></div>
+    <div id="game-cursor" class="cursor user-turn idle" aria-hidden="true"></div>
 
-    <img src="assets/bg/e_tree.png" class="e-tree hidden" id="tree-egg" alt="Terraria Tree">
-    <div class="e-tree-tooltip hidden" id="tree-tooltip">Easter Egg encontrado!</div>
-    
-    <audio id="sfx-egg" src="assets/sfx/toasty_egg.mp3"></audio>
+    <img src="assets/bg/e_tree.png" class="e-tree is-hidden" id="tree-egg" alt="Árvore pixelada do easter egg">
+    <div class="e-tree-tooltip is-hidden" id="tree-tooltip" role="status">Easter egg encontrado!</div>
 
+    <div id="promotion-modal" class="modal is-hidden" role="dialog" aria-modal="true" aria-labelledby="promotion-title">
+        <div class="modal-card">
+            <p class="modal-kicker">Última fileira!</p>
+            <h2 id="promotion-title">Escolha a promoção</h2>
+            <div id="promotion-options" class="promotion-options">
+                <button type="button" data-promotion="Q" aria-label="Promover para dama">
+                    <img src="assets/pieces/w_queen.png" alt="">
+                    <span>Dama</span>
+                </button>
+                <button type="button" data-promotion="R" aria-label="Promover para torre">
+                    <img src="assets/pieces/w_rook.png" alt="">
+                    <span>Torre</span>
+                </button>
+                <button type="button" data-promotion="B" aria-label="Promover para bispo">
+                    <img src="assets/pieces/w_bishop.png" alt="">
+                    <span>Bispo</span>
+                </button>
+                <button type="button" data-promotion="N" aria-label="Promover para cavalo">
+                    <img src="assets/pieces/w_knight.png" alt="">
+                    <span>Cavalo</span>
+                </button>
+            </div>
+            <button id="cancel-promotion" class="modal-cancel" type="button">Cancelar</button>
+        </div>
+    </div>
+
+    <audio id="sfx-egg" src="assets/sfx/toasty_egg.mp3" preload="auto"></audio>
+    <audio id="sfx-achievement" src="assets/sfx/steam_achievement.mp3" preload="auto"></audio>
+
+    <script src="engine.js"></script>
     <script src="scripts.js"></script>
 </body>
 </html>
